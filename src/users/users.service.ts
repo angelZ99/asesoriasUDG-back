@@ -16,6 +16,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from './dto/loginUserDto';
 import { NotFoundException } from '@nestjs/common';
+import { response } from 'express';
 
 @Injectable()
 export class UsersService {
@@ -36,8 +37,7 @@ export class UsersService {
       });
       await this.userRepository.save(user);
 
-      delete user.password;
-      return user;
+      return this.userWhioutPassword(user);
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -46,7 +46,9 @@ export class UsersService {
   async findAll() {
     try {
       const users = await this.userRepository.find();
-      return users;
+      return users.map((user) => {
+        return this.userWhioutPassword(user);
+      });
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -57,7 +59,7 @@ export class UsersService {
 
     if (!user) throw new NotFoundException(`User with id: ${id} not found`);
 
-    return user;
+    return this.userWhioutPassword(user);
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -71,7 +73,7 @@ export class UsersService {
 
       await this.userRepository.save(user);
 
-      return user;
+      return this.userWhioutPassword(user);
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -82,8 +84,7 @@ export class UsersService {
 
     await this.userRepository.remove(user);
 
-    delete user.password;
-    return user;
+    return this.userWhioutPassword(user);
   }
 
   async login(loginUserDto: LoginUserDto) {
@@ -100,7 +101,8 @@ export class UsersService {
     } else if (!bcrypt.compare(password, user.password)) {
       throw new BadRequestException('The Password is incorrect');
     }
-    return user;
+
+    return this.userWhioutPassword(user);
   }
 
   private handleDBExceptions(error: any) {
@@ -110,5 +112,10 @@ export class UsersService {
       this.logger.error(error);
       throw new InternalServerErrorException('Unexpected error');
     }
+  }
+
+  private userWhioutPassword(user) {
+    delete user.password;
+    return user;
   }
 }
