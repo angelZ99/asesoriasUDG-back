@@ -1,0 +1,16 @@
+version: '3.1'
+
+services:
+  postgres:
+    image: postgres:15.2
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      DATABASE_HOST: 127.0.0.1
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    container_name: asesorias-udg
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
