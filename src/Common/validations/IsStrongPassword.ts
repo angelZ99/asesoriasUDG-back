@@ -15,6 +15,6 @@ export class IsStrongPassword implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return `The provided email is invalid or not an institutional email!`;
+    return `The provided password is invalid!`;
   }
 }

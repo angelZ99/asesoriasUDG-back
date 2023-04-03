@@ -12,11 +12,10 @@ import { UserEntity } from './entities/user.entity';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { LoginUserDto } from './dto/loginUserDto';
 
 import * as bcrypt from 'bcrypt';
-import { LoginUserDto } from './dto/loginUserDto';
 import { NotFoundException } from '@nestjs/common';
-import { response } from 'express';
 
 @Injectable()
 export class UsersService {
@@ -98,7 +97,9 @@ export class UsersService {
       throw new BadRequestException(
         `The institutional email ${institutional_email} doesn't exist`,
       );
-    } else if (!bcrypt.compare(password, user.password)) {
+    }
+
+    if (!bcrypt.compareSync(password, user.password)) {
       throw new BadRequestException('The Password is incorrect');
     }
 
